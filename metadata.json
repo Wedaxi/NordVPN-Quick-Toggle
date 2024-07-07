@@ -1,0 +1,8 @@
+{
+  "name": "NordVPN Quick Toggle",
+  "description": "Quick toggle to connect/disconnect NordVPN",
+  "uuid": "nordvpnquicktoggle@wedaxi.com",
+  "shell-version": [
+    "46"
+  ]
+}
