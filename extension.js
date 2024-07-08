@@ -65,13 +65,13 @@ const NordVPNMenuToggle = GObject.registerClass(
     constructor() {
       super({
         title: _('NordVPN'),
-        iconName: ICON_NAME,
+        gicon: Gio.ThemedIcon.new(ICON_NAME),
         toggleMode: true,
       });
 
       this.menu.setHeader(
         ICON_NAME,
-        spawnCommandLineSync("nordvpn version", _('NordVPN'))
+        spawnCommandLineSync("nordvpn version", _('NordVPN client not found'))
       );
 
       const selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), true);
