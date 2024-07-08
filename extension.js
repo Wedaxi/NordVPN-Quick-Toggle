@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Shell from 'gi://Shell';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -25,9 +27,10 @@ import { QuickMenuToggle, SystemIndicator } from 'resource:///org/gnome/shell/ui
 import { PopupSubMenuMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { spawnCommandLine } from 'resource:///org/gnome/shell/misc/util.js';
 
-const connect = "nordvpn connect";
-const disconnect = "nordvpn disconnect";
-const iconName = "nordvpn-tray-white";
+const CONNECT = "nordvpn connect";
+const DISCONNECT = "nordvpn disconnect";
+const COUNTRIES = "nordvpn countries";
+const ICON_NAME = "nordvpn-tray-white";
 
 function getGioIcon(icon) {
   const ext = Extension.lookupByURL(import.meta.url)
@@ -35,17 +38,26 @@ function getGioIcon(icon) {
   return new Gio.FileIcon({ file });
 }
 
-function parseJsonFile(fileName, def = []) {
-  const ext = Extension.lookupByURL(import.meta.url);
-  const file = ext.dir.resolve_relative_path(fileName);
-  let contents, success_;
-  try {
-    [success_, contents] = file.load_contents(null);
-    const decoder = new TextDecoder();
-    return JSON.parse(decoder.decode(contents));
-  } catch(e) {
-    return def;
-  }
+function spawnCommandLineSync(commandLine, def = "") {
+    try {
+      const [success_, argv] = GLib.shell_parse_argv(commandLine);
+      const launchContext = Shell.Global.get().create_app_launch_context(0, -1);
+      const [ok, standard_output, standard_error_, wait_status_] = GLib.spawn_sync(
+        null,
+        argv,
+        launchContext.get_environment(),
+        GLib.SpawnFlags.SEARCH_PATH,
+        () => {}
+      );
+      if (ok) {
+        const decoder = new TextDecoder();
+        return decoder.decode(standard_output).trim();
+      } else {
+        return def;
+      }
+    } catch(e) {
+      return def;
+    }
 }
 
 const NordVPNMenuToggle = GObject.registerClass(
@@ -53,24 +65,25 @@ const NordVPNMenuToggle = GObject.registerClass(
     constructor() {
       super({
         title: _('NordVPN'),
-        iconName: iconName,
+        iconName: ICON_NAME,
         toggleMode: true,
       });
-      
+
       this.menu.setHeader(
-        iconName,
-        _('NordVPN Version 3.18.2')
+        ICON_NAME,
+        spawnCommandLineSync("nordvpn version", _('NordVPN'))
       );
 
       const selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), true);
       selectCountryMenuItem.icon.set_gicon(getGioIcon("globe"));
-      const countries = parseJsonFile("countries.json");
+      const countries = spawnCommandLineSync(COUNTRIES).split(",");
       countries.forEach((country) => {
-        const gicon = getGioIcon(country);
+        const trimmed = country.trim();
+        const gicon = getGioIcon(trimmed);
         selectCountryMenuItem.menu.addAction(
-          _(country.replaceAll("_", " ")),
+          _(trimmed.replaceAll("_", " ")),
           () => {
-            spawnCommandLine(`${connect} ${country}`);
+            spawnCommandLine(`${CONNECT} ${trimmed}`);
             this.gicon = gicon;
             this.checked = true;
           },
@@ -81,9 +94,10 @@ const NordVPNMenuToggle = GObject.registerClass(
 
       this.connect('clicked', () => {
         if (this.checked) {
-          spawnCommandLine(connect);
+          spawnCommandLine(CONNECT);
         } else {
-          spawnCommandLine(disconnect);
+          spawnCommandLine(DISCONNECT);
+          this.gicon = Gio.ThemedIcon.new(ICON_NAME);
         }
       });
     }
