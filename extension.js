@@ -22,37 +22,12 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { QuickMenuToggle, SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js';
-import { PopupMenuItem, PopupSubMenuMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import { PopupSubMenuMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { spawnCommandLine } from 'resource:///org/gnome/shell/misc/util.js';
 
 const connect = "nordvpn connect";
 const disconnect = "nordvpn disconnect";
-
-const countries = [
-  "Albania",
-  "Algeria",
-  "Andorra",
-  "Argentina",
-  "Armenia",
-  "Australia",
-  "Austria",
-  "Azerbaijan",
-  "Bahamas",
-  "Bangladesh",
-  "Belgium",
-  "Belize",
-  "Bermuda",
-  "Bhutan",
-  "Bolivia",
-  "Bosnia_And_Herzegovina",
-  "Brazil",
-  "Brunei_Darussalam",
-  "Bulgaria",
-  "Germany",
-  "Japan",
-  "Singapore",
-  "United_States"
-];
+const iconName = "nordvpn-tray-white";
 
 function getGioIcon(icon) {
   const ext = Extension.lookupByURL(import.meta.url)
@@ -60,26 +35,40 @@ function getGioIcon(icon) {
   return new Gio.FileIcon({ file });
 }
 
+function parseJsonFile(fileName, def = []) {
+  const ext = Extension.lookupByURL(import.meta.url);
+  const file = ext.dir.resolve_relative_path(fileName);
+  let contents, success_;
+  try {
+    [success_, contents] = file.load_contents(null);
+    const decoder = new TextDecoder();
+    return JSON.parse(decoder.decode(contents));
+  } catch(e) {
+    return def;
+  }
+}
+
 const NordVPNMenuToggle = GObject.registerClass(
   class NordVPNMenuToggle extends QuickMenuToggle {
     constructor() {
       super({
         title: _('NordVPN'),
-        iconName: 'nordvpn-tray-white',
+        iconName: iconName,
         toggleMode: true,
       });
       
-      this.setHeader(
-        'nordvpn-tray-white',
-        _('NordVPN')
+      this.menu.setHeader(
+        iconName,
+        _('NordVPN Version 3.18.2')
       );
 
       const selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), true);
       selectCountryMenuItem.icon.set_gicon(getGioIcon("globe"));
+      const countries = parseJsonFile("countries.json");
       countries.forEach((country) => {
         const gicon = getGioIcon(country);
         selectCountryMenuItem.menu.addAction(
-          _(country.replace("_", " ")),
+          _(country.replaceAll("_", " ")),
           () => {
             spawnCommandLine(`${connect} ${country}`);
             this.gicon = gicon;
@@ -89,17 +78,12 @@ const NordVPNMenuToggle = GObject.registerClass(
         );
       });
       this.menu.addMenuItem(selectCountryMenuItem);
-      
-      const versionMenuItem = new PopupMenuItem(_('Version 3.18.2'));
-      this.menu.addMenuItem(versionMenuItem);
 
       this.connect('clicked', () => {
         if (this.checked) {
           spawnCommandLine(connect);
         } else {
           spawnCommandLine(disconnect);
-          this.gicon = undefined;
-          this.iconName = 'nordvpn-tray-white';
         }
       });
     }
