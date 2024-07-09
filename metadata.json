@@ -1,6 +1,6 @@
 {
   "name": "NordVPN Quick Toggle",
-  "description": "GNOME extension that shows a quick toggle to connect/disconnect NordVPN",
+  "description": "GNOME extension that shows a quick toggle to connect/disconnect NordVPN.\nThis extension is not affiliated, funded, or in any way associated with NordVPN.",
   "uuid": "nordvpnquicktoggle@wedaxi.com",
   "shell-version": [
     "46"
