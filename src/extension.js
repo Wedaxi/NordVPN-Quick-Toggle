@@ -85,7 +85,7 @@ const NordVPNMenuToggle = GObject.registerClass(
   class NordVPNMenuToggle extends QuickMenuToggle {
     constructor(path) {
       super({
-        title: _('NordVPN'),
+        title: 'NordVPN',
         gicon: Gio.ThemedIcon.new(NORDVPN_ICON_NAME)
       });
 
@@ -124,12 +124,12 @@ const NordVPNMenuToggle = GObject.registerClass(
       execCommunicate([NORDVPN_CLIENT, 'countries'])
         .then((countries) => {
           const selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), true);
-          selectCountryMenuItem.icon.set_gicon(getGicon(path, 'globe'));
+          selectCountryMenuItem.icon.gicon = getGicon(path, 'globe');
           countries.split(',').forEach((item) => {
             const country = item.trim();
             const gicon = getGicon(path, country);
             selectCountryMenuItem.menu.addAction(
-              _(country.replaceAll('_', ' ')),
+              country.replaceAll('_', ' '),
               () => {
                 this.check(gicon);
                 execCommunicate([NORDVPN_CLIENT, 'connect', country])

@@ -2,6 +2,11 @@
   "name": "nordvpquicktoggle",
   "main": "index.js",
   "repository": "https://github.com/Wedaxi/NordVPN-Quick-Toggle.git",
+  "scripts": {
+    "ext-pack": "gnome-extensions pack --force --podir=po --gettext-domain=nordvpn-quick-toggle --extra-source=icons src",
+    "ext-install": "gnome-extensions install --force nordvpnquicktoggle@wedaxi.com.shell-extension.zip"
+  },
+  "license": "GPL-2.0-or-later",
   "devDependencies": {
     "@girs/gio-2.0": "^2.78.0-3.3.0",
     "@girs/glib-2.0": "^2.78.0-3.3.0",

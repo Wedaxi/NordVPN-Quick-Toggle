@@ -5,5 +5,6 @@
   "shell-version": [
     "46"
   ],
-  "url": "https://github.com/Wedaxi/NordVPN-Quick-Toggle"
+  "url": "https://github.com/Wedaxi/NordVPN-Quick-Toggle",
+  "gettext-domain": "nordvpn-quick-toggle"
 }
