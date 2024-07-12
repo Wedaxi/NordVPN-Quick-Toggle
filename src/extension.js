@@ -119,12 +119,12 @@ const NordVPNMenuToggle = GObject.registerClass(
     setCountries() {
       execCommunicate([NORDVPN_CLIENT, 'countries'])
         .then((countries) => {
-          const selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), true);
-          selectCountryMenuItem.icon.gicon = this.getGicon('globe-symbolic');
+          this.selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), true);
+          this.selectCountryMenuItem.icon.gicon = this.getGicon('globe-symbolic');
           countries.split(',').forEach((item) => {
             const country = item.trim();
             const gicon = this.getGicon(country);
-            selectCountryMenuItem.menu.addAction(
+            this.selectCountryMenuItem.menu.addAction(
               country.replaceAll('_', ' '),
               () => {
                 this.check(gicon);
@@ -134,7 +134,14 @@ const NordVPNMenuToggle = GObject.registerClass(
               gicon
             );
           });
-          this.menu.addMenuItem(selectCountryMenuItem);
+          this.menu.connect('open-state-changed', () => {
+            if (this.menu.isOpen) {
+              this.selectCountryMenuItem.menu.open(false);
+            } else {
+              this.selectCountryMenuItem.menu.close(false);
+            }
+          });
+          this.menu.addMenuItem(this.selectCountryMenuItem);
         });
     }
 
