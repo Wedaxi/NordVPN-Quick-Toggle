@@ -28,13 +28,7 @@ import { PopupSubMenuMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.j
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async');
 
 const NORDVPN_CLIENT = 'nordvpn';
-const NORDVPN_ICON_NAME = 'nordvpn-tray-white';
-
-function getGicon(path, icon) {
-  const iconPath = GLib.build_filenamev([path, 'icons', `${icon}.svg`]);
-  const file = Gio.File.new_for_path(iconPath);
-  return new Gio.FileIcon({ file });
-}
+const NORDVPN_ICON_NAME = 'nordvpn-symbolic';
 
 /**
  * Execute a command asynchronously and return the output from `stdout` on
@@ -85,19 +79,21 @@ const NordVPNMenuToggle = GObject.registerClass(
   class NordVPNMenuToggle extends QuickMenuToggle {
     constructor(path) {
       super({
-        title: 'NordVPN',
-        gicon: Gio.ThemedIcon.new(NORDVPN_ICON_NAME)
+        title: 'NordVPN'
       });
 
+      this.path = path;
+      this.gicon = this.getGicon(NORDVPN_ICON_NAME);
+
       this.setHeader();
-      this.setCountries(path);
+      this.setCountries();
 
       this.connect('clicked', () => {
         if (this.checked) {
           this.unCheck();
           execCommunicate([NORDVPN_CLIENT, 'disconnect']);
         } else {
-          this.check();
+          this.check(this.getGicon(NORDVPN_ICON_NAME));
           execCommunicate([NORDVPN_CLIENT, 'connect'])
             .catch(() => this.unCheck());
         }
@@ -108,26 +104,26 @@ const NordVPNMenuToggle = GObject.registerClass(
       execCommunicate([NORDVPN_CLIENT, 'version'])
         .then((version) => {
           this.menu.setHeader(
-            NORDVPN_ICON_NAME,
+            this.getGicon(NORDVPN_ICON_NAME),
             version
           );
         })
         .catch(() => {
           this.menu.setHeader(
-            NORDVPN_ICON_NAME,
+            this.getGicon(NORDVPN_ICON_NAME),
             _('NordVPN client not found')
           );
         });
     }
 
-    setCountries(path) {
+    setCountries() {
       execCommunicate([NORDVPN_CLIENT, 'countries'])
         .then((countries) => {
           const selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), true);
-          selectCountryMenuItem.icon.gicon = getGicon(path, 'globe');
+          selectCountryMenuItem.icon.gicon = this.getGicon('globe-symbolic');
           countries.split(',').forEach((item) => {
             const country = item.trim();
-            const gicon = getGicon(path, country);
+            const gicon = this.getGicon(country);
             selectCountryMenuItem.menu.addAction(
               country.replaceAll('_', ' '),
               () => {
@@ -144,14 +140,18 @@ const NordVPNMenuToggle = GObject.registerClass(
 
     check(gicon) {
       this.checked = true;
-      if (gicon) {
-        this.gicon = gicon;
-      }
+      this.gicon = gicon;
     }
 
     unCheck() {
       this.checked = false;
-      this.gicon = Gio.ThemedIcon.new(NORDVPN_ICON_NAME);
+      this.gicon = this.getGicon(NORDVPN_ICON_NAME);
+    }
+
+    getGicon(icon) {
+      const iconPath = GLib.build_filenamev([this.path, 'icons', `${icon}.svg`]);
+      const file = Gio.File.new_for_path(iconPath);
+      return new Gio.FileIcon({ file });
     }
   });
 
