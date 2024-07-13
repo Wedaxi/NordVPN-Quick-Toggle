@@ -75,6 +75,23 @@ async function execCommunicate(argv, input = null, cancellable = null) {
   }
 }
 
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function when(condition, tries = 0) {
+  if (tries == 50) {
+      throw "Max number of tries reached";
+  }
+
+  if (condition()) {
+      return undefined;
+  }
+
+  await sleep(5);
+  return await when(condition, tries + 1);
+}
+
 const NordVPNMenuToggle = GObject.registerClass(
   class NordVPNMenuToggle extends QuickMenuToggle {
     constructor(path) {
@@ -119,12 +136,12 @@ const NordVPNMenuToggle = GObject.registerClass(
     setCountries() {
       execCommunicate([NORDVPN_CLIENT, 'countries'])
         .then((countries) => {
-          const selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), true);
-          selectCountryMenuItem.icon.gicon = this.getGicon('globe-symbolic');
+          this.selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), false);
+          this.selectCountryMenuItem.hide();
           countries.split(',').forEach((item) => {
             const country = item.trim();
             const gicon = this.getGicon(country);
-            selectCountryMenuItem.menu.addAction(
+            this.selectCountryMenuItem.menu.addAction(
               country.replaceAll('_', ' '),
               () => {
                 this.check(gicon);
@@ -134,7 +151,18 @@ const NordVPNMenuToggle = GObject.registerClass(
               gicon
             );
           });
-          this.menu.addMenuItem(selectCountryMenuItem);
+          this.menu.connect('open-state-changed', () => {
+            if (this.menu.isOpen) {
+              when(() => this.menu.box.opacity > 0)
+                .then(() => this.selectCountryMenuItem.menu.open(false))
+                .catch(() => this.selectCountryMenuItem.menu.open(false));
+            } else {
+              when(() => this.menu.box.opacity == 0)
+                .then(() => this.selectCountryMenuItem.menu.close(false))
+                .catch(() => this.selectCountryMenuItem.menu.close(false));
+            }
+          });
+          this.menu.addMenuItem(this.selectCountryMenuItem);
         });
     }
 
