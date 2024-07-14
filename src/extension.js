@@ -25,6 +25,8 @@ import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/
 import { QuickMenuToggle, SystemIndicator } from 'resource:///org/gnome/shell/ui/quickSettings.js';
 import { PopupSubMenuMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
+import { AsyncHandler, RejectReason } from './asyncHandler.js';
+
 Gio._promisify(Gio.Subprocess.prototype, 'communicate_utf8_async');
 
 const NORDVPN_CLIENT = 'nordvpn';
@@ -75,23 +77,6 @@ async function execCommunicate(argv, input = null, cancellable = null) {
   }
 }
 
-async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function when(condition, tries = 0) {
-  if (tries == 50) {
-      throw "Max number of tries reached";
-  }
-
-  if (condition()) {
-      return undefined;
-  }
-
-  await sleep(5);
-  return await when(condition, tries + 1);
-}
-
 const NordVPNMenuToggle = GObject.registerClass(
   class NordVPNMenuToggle extends QuickMenuToggle {
     constructor(path) {
@@ -101,6 +86,7 @@ const NordVPNMenuToggle = GObject.registerClass(
 
       this.path = path;
       this.gicon = this.getGicon(NORDVPN_ICON_NAME);
+      this.asyncHandler = new AsyncHandler();
 
       this.setHeader();
       this.setCountries();
@@ -151,17 +137,7 @@ const NordVPNMenuToggle = GObject.registerClass(
               gicon
             );
           });
-          this.menu.connect('open-state-changed', () => {
-            if (this.menu.isOpen) {
-              when(() => this.menu.box.opacity > 0)
-                .then(() => this.selectCountryMenuItem.menu.open(false))
-                .catch(() => this.selectCountryMenuItem.menu.open(false));
-            } else {
-              when(() => this.menu.box.opacity == 0)
-                .then(() => this.selectCountryMenuItem.menu.close(false))
-                .catch(() => this.selectCountryMenuItem.menu.close(false));
-            }
-          });
+          this.menu.connect('open-state-changed', () => this.onOpenStateChanged());
           this.menu.addMenuItem(this.selectCountryMenuItem);
         });
     }
@@ -180,6 +156,28 @@ const NordVPNMenuToggle = GObject.registerClass(
       const iconPath = GLib.build_filenamev([this.path, 'icons', `${icon}.svg`]);
       const file = Gio.File.new_for_path(iconPath);
       return new Gio.FileIcon({ file });
+    }
+
+    onOpenStateChanged() {
+      this.asyncHandler.clear();
+      if (this.menu.isOpen) {
+        this.asyncHandler.when(() => this.menu.box.opacity > 0)
+          .then(() => this.openCountriesSubMenu())
+          .catch((reason) => {
+            if (reason == RejectReason.MAX_NUMBER_OF_TRIES)
+              this.openCountriesSubMenu();
+          });
+      }
+    }
+
+    openCountriesSubMenu() {
+      if (this.menu.isOpen)
+        this.selectCountryMenuItem.menu.open(false);
+    }
+
+    destroy() {
+      this.asyncHandler.clear();
+      super.destroy();
     }
   });
 
