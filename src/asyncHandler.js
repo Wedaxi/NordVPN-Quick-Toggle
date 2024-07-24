@@ -8,6 +8,7 @@ export class AsyncHandler {
   async _delay(ms) {
     return new Promise((resolve, reject) => {
       this._reject = reject;
+      clearTimeout(this._timeoutId);
       this._timeoutId = setTimeout(() => {
         this._reject = undefined;
         resolve();

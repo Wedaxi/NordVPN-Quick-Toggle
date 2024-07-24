@@ -124,7 +124,8 @@ const NordVPNMenuToggle = GObject.registerClass(
         .then((countries) => {
           this.selectCountryMenuItem = new PopupSubMenuMenuItem(_('Select country'), false);
           this.selectCountryMenuItem.hide();
-          countries.split(',').forEach((item) => {
+          const regex = countries.includes(',') ? /\,/ : /\r?\n/;
+          countries.split(regex).forEach((item) => {
             const country = item.trim();
             const gicon = this.getGicon(country);
             this.selectCountryMenuItem.menu.addAction(
