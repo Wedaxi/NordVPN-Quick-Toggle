@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install gnome-shell
-      run: sudo apt-get update; sudo apt-get install -y gnome-shell gnome-extensions
+      run: sudo apt-get update; sudo apt-get install -y gnome-shell
     - name: Pack extension
       run: gnome-extensions pack -podir=po --gettext-domain=nordvpn-quick-toggle --extra-source=asyncHandler.js --extra-source=icons src
 
