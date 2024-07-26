@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install gnome-shell
-      run: sudo apt update && sudo apt install -y gnome-shell
+      run: sudo apt update && sudo apt install -y gnome-shell gettext
     - name: Pack extension
       run: pwd; ls -la; gnome-extensions pack --podir=po --gettext-domain=nordvpn-quick-toggle --extra-source=asyncHandler.js --extra-source=icons .
       working-directory: ./src
