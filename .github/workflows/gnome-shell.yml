@@ -26,5 +26,6 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "nordvpnquicktoggle@wedaxi.com.shell-extension.zip"
+        allowUpdates: true
         tag: "release"
 
