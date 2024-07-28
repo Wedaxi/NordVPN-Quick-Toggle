@@ -30,3 +30,7 @@ https://extensions.gnome.org/extension/7174/nordvpn-quick-toggle/
     gnome-extensions enable nordvpnquicktoggle@wedaxi.com
     ```  
     If this doesn't work you probably need to log out the session and back in to see the extension
+
+## Credits
+
+Original source for the flag icons ---> [flag-icons](https://github.com/lipis/flag-icons)
