@@ -7,9 +7,9 @@ Supports GNOME Shell version 45 and 46.
 
 ## Preview
 
-Country selection          |  Connected
-:-------------------------:|:-------------------------:
-![](country_selection.png) |  ![](connected.png)
+|     Country selection      |     Connected      |
+| :------------------------: | :----------------: |
+| ![](country_selection.png) | ![](connected.png) |
 
 ## Installation
 
