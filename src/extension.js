@@ -108,7 +108,7 @@ const NordVPNMenuToggle = GObject.registerClass(
         .then((version) => {
           this.menu.setHeader(
             this.getGicon(NORDVPN_ICON_NAME),
-            version
+            version.replace('Daemon: ', '')
           );
         })
         .catch(() => {
