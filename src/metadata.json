@@ -9,5 +9,6 @@
     "45"
   ],
   "url": "https://github.com/Wedaxi/NordVPN-Quick-Toggle",
-  "gettext-domain": "nordvpn-quick-toggle"
+  "gettext-domain": "nordvpnquicktoggle@wedaxi.com",
+  "settings-schema": "nordvpnquicktoggle@wedaxi.com"
 }
