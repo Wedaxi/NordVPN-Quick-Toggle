@@ -12,11 +12,32 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install gnome-shell
-      run: sudo apt update && sudo apt install -y gnome-shell gettext
-      
+    - name: Install gnome-deps
+      run: sudo apt update && sudo apt install -y gnome-shell gettext libglib2.0-dev
+
+    - name: Compile schemas
+      run: glib-compile-schemas src/schemas/
+
+    - name: Generate POT file
+      run: xgettext --from-code=UTF-8 -o src/po/nordvpn-quick-toggle.pot src/*.js
+
+    - name: Update PO files
+      run: |
+        msgmerge -U src/po/de.po src/po/nordvpn-quick-toggle.pot
+        msgmerge -U src/po/fr.po src/po/nordvpn-quick-toggle.pot
+        msgmerge -U src/po/es.po src/po/nordvpn-quick-toggle.pot
+
+    - name: Compile MO files
+      run: |
+        mkdir -p src/locale/de/LC_MESSAGES/
+        msgfmt src/po/de.po -o src/locale/de/LC_MESSAGES/nordvpn-quick-toggle.mo
+        mkdir -p src/locale/fr/LC_MESSAGES/
+        msgfmt src/po/fr.po -o src/locale/fr/LC_MESSAGES/nordvpn-quick-toggle.mo
+        mkdir -p src/locale/es/LC_MESSAGES/
+        msgfmt src/po/es.po -o src/locale/es/LC_MESSAGES/nordvpn-quick-toggle.mo
+
     - name: Pack extension
-      run: gnome-extensions pack --podir=po --gettext-domain=nordvpn-quick-toggle --extra-source=asyncHandler.js --extra-source=icons src
+      run: gnome-extensions pack --podir=po --gettext-domain=nordvpn-quick-toggle --extra-source=asyncHandler.js --extra-source=constants.js --extra-source=icons src
       
     - name: Release artifacts
       uses: ncipollo/release-action@v1
@@ -24,4 +45,3 @@ jobs:
         artifacts: "nordvpnquicktoggle@wedaxi.com.shell-extension.zip"
         allowUpdates: true
         tag: "release"
-

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-09 20:37+0200\n"
+"POT-Creation-Date: 2024-12-02 16:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,36 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:118
+#: extension.js:125
 msgid "NordVPN client not found"
 msgstr ""
 
-#: extension.js:126
+#: extension.js:134
 msgid "Select country"
+msgstr ""
+
+#: extension.js:172 extension.js:198 extension.js:240
+msgid "Connection history"
+msgstr ""
+
+#: prefs.js:14
+msgid "General"
+msgstr ""
+
+#: prefs.js:20
+msgid "Behavior"
+msgstr ""
+
+#: prefs.js:21
+msgid "Configure the behavior of the extension"
+msgstr ""
+
+#: prefs.js:28
+msgid "Max Connection History"
+msgstr ""
+
+#: prefs.js:42
+msgid ""
+"This extension can remember up to 5 most recently connected countries. "
+"Default is 3."
 msgstr ""

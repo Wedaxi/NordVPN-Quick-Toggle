@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="nordvpnquicktoggle@wedaxi.com" path="/org/gnome/shell/extensions/nordvpnquicktoggle@wedaxi.com/">
+    <key name="max-history" type="i">
+      <range min="0" max="5"/>
+      <default>3</default>
+      <summary>Max Connection History</summary>
+      <description>Extension can keep a history of 0-5 countries you have connected to. Default is 3.</description>
+    </key>
+    <key name="string-keys" type="as">
+      <default>[]</default>
+      <summary>Set of string keys.</summary>
+      <description>This key stores the country connection history.</description>
+    </key>
+  </schema>
+</schemalist>
