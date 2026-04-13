@@ -3,7 +3,7 @@
 GNOME extension that shows a quick toggle to connect/disconnect NordVPN.
 This extension is not affiliated, funded, or in any way associated with NordVPN.
 
-Supports GNOME Shell version 45, 46, 47, 48 and 49.
+Supports GNOME Shell version 45, 46, 47, 48, 49 and 50.
 
 ## Preview
 
