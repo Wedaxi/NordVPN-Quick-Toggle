@@ -87,11 +87,12 @@ const NordVPNMenuToggle = GObject.registerClass(
       this.path = path;
       this.gicon = this.getGicon(NORDVPN_ICON_NAME);
       this.asyncHandler = new AsyncHandler();
+      this._signalHandlers = [];
 
       this.setHeader();
       this.setCountries();
 
-      this.connect('clicked', () => {
+      const handlerId = this.connect('clicked', () => {
         if (this.checked) {
           this.unCheck();
           execCommunicate([NORDVPN_CLIENT, 'disconnect']);
@@ -101,6 +102,7 @@ const NordVPNMenuToggle = GObject.registerClass(
             .catch(() => this.unCheck());
         }
       });
+      this._signalHandlers.push({ object: this, id: handlerId });
     }
 
     setHeader() {
@@ -138,7 +140,8 @@ const NordVPNMenuToggle = GObject.registerClass(
               gicon
             );
           });
-          this.menu.connect('open-state-changed', () => this.onOpenStateChanged());
+          const handlerId = this.menu.connect('open-state-changed', () => this.onOpenStateChanged());
+          this._signalHandlers.push({ object: this.menu, id: handlerId });
           this.menu.addMenuItem(this.selectCountryMenuItem);
         });
     }
@@ -178,6 +181,9 @@ const NordVPNMenuToggle = GObject.registerClass(
 
     destroy() {
       this.asyncHandler.clear();
+      this._signalHandlers.forEach(({ object, id }) => {
+        object.disconnect(id);
+      });
       super.destroy();
     }
   });
